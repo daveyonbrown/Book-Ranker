@@ -1,9 +1,21 @@
-import pandas as pd
+import pandas
 from collections import defaultdict
+from graph import Graph
+import pickle
 
-y = pd.read_csv("ratings.csv")
+def main():
+    g = Graph()
+    g.construct_simple()
 
-print(y)
-ids = y["user_id"]
-x = list(ids)
-print(x[0])
+
+
+
+    g.save("graph.pkl")
+
+
+
+
+if __name__ == "__main__":
+    main()
+
+
