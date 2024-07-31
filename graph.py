@@ -147,24 +147,33 @@ class Graph:
         :param source: The vertex searched by the user.
         :param steps: The amount of times the function randomly switches vertices
         """
-        self.load_graph("graph.pkl")
+        self.load_graph("graphrandomwalk.pkl")
 
         current = source
         counts = defaultdict(int) #nodes mapped how many times the walk landed on the node
         for i in range(steps):
 
             neighbors = list(self.graph.neighbors(current))
-            if len(neighbors) == 0:
-                return counts
+            if len(neighbors) == 0: ## we will handle this case later. Possibly reccomend random books
+                break
             weights = []
+            weights_sum = 0 ##keep track to turn into probabilities
             for neighbor in neighbors:
-                weights.append(self.graph.get_edge_data(current, neighbor)["weight"])
-            probabilities = [weight / sum(weights) for weight in weights] # Turns the weights of the edges into a probability distribution
-            choice = random.choices(neighbors, probabilities, k=1)[0] ## randomly selects a neighboring node to visit
+                edge_data = self.graph.get_edge_data(current, neighbor)
+                weight = edge_data["weight"]
+                weights.append(weight)
+                weights_sum += weight
+            probabilities = []
+            for weight in weights:
+                probability = weight / weights_sum # turn into a probability distribution function
+                probabilities.append(probability)
+            choice = random.choices(neighbors, probabilities, k=1)[0]
             if choice != source:
                 counts[choice] += 1
-                current = choice
-        return counts ##this is one random walk. Run many times
+            current = choice
+
+
+
 
     def random_walk_sim(self, source, num_walks, steps = 100):
         """
@@ -177,6 +186,8 @@ class Graph:
         :param steps: used in the random walk function
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
+
+
 
 
 

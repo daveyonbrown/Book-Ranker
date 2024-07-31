@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!--special character encoding for site*/-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Ranker</title> <!--title of webpage -->
+    <style>
+        body {
+            font-family: "Times New Roman", sans-serif; /*sets font for whole page*/
+            display: flex;/* flex box to align all items */
+            justify-content: flex-start; /* Align items to the start of the container horizontally*/
+            align-items: center;/* aligns items to the center of the container vertically  */
+            flex-direction: column;/* */
+            height: 100vh;
+            margin: 0;
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .Namecard {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .search-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-left: 20px;
+        }
+        .search-box {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .search-button:hover {
+            background-color: darkblue;
+        }
+        .result {
+            font-size: 18px;
+            margin-top: 0px;
+            color: #333;
+        }
+        .tables-container {
+            width: 80%;
+            margin-top: 80px;
+            display: none; /* Hide tables initially */
+        }
+        .table-wrapper {
+            display: flex;
+            justify-content: space-around;
+        }
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 10px; /* Space between the two tables */
+        }
+        .tables-header {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 10px; /* Space between text and table */
+        }
+        .time-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px; /* Space between text and table */
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="Namecard" id="Namecard">Book Ranker</div>
+        <div class="search-container" id="searchContainer">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search...">
+            <button class="search-button" onclick="Search()">Search</button>
+        </div>
+    </div>
+    <div class="result" id="result"></div>
+
+    <div class="tables-container" id="tablesContainer">
+        <div class="table-wrapper">
+            <div class="table-container">
+                <div class="tables-header">Searching Algorithm 1</div>
+                <table>
+                    <tr>
+                        <th>Column 1</th>
+                    </tr>
+                    <tr>
+                        <td>Row 1</td>
+                    </tr>
+                    <tr>
+                        <td>Row 2</td>
+                    </tr>
+                    <tr>
+                        <td>Row 3</td>
+                    </tr>
+                    <tr>
+                        <td>Row 4</td>
+                    </tr>
+                    <tr>
+                        <td>Row 5</td>
+                    </tr>
+                </table>
+                <div class="time-header"> Search Time: 0.00</div>
+            </div>
+            <div class="table-container">
+                <div class="tables-header">Searching Algorithm 2</div>
+                <table>
+                    <tr>
+                        <th>Column 2</th>
+                    </tr>
+                    <tr>
+                        <td>Row 1</td>
+                    </tr>
+                    <tr>
+                        <td>Row 2</td>
+                    </tr>
+                    <tr>
+                        <td>Row 3</td>
+                    </tr>
+                    <tr>
+                        <td>Row 4</td>
+                    </tr>
+                    <tr>
+                        <td>Row 5</td>
+                    </tr>
+                </table>
+                 <div class="time-header"> Search Time: 0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function Search() {
+            var query = document.getElementById('searchBox').value;
+            var resultDiv = document.getElementById('result');
+            var tablesContainer = document.getElementById('tablesContainer');
+
+            // Display the search result
+            resultDiv.textContent = 'You searched for: ' + query;
+
+            // Show the tables
+            tablesContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
