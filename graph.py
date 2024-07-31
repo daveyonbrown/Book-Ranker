@@ -5,6 +5,7 @@ import networkx as nx
 from collections import defaultdict
 import math
 import random
+import heapq
 
 
 class Graph:
@@ -29,7 +30,7 @@ class Graph:
         nodes = set(self.book_ids) # each book is a node
         self.graph.add_nodes_from(nodes)
 
-        weights = defaultdict(int) # tuple to int. book1 <---> book2: weigth
+        weights = defaultdict(int) # tuple to int. book1 <---> book2: weight
         user_books = defaultdict(list) # user : books they rated 5 stars
         num_reviews = defaultdict(int) # determines popularity of book. Used for balancing of weights.
 
@@ -95,9 +96,38 @@ class Graph:
     def dijkstras_algorithm(self, source): # algorithm 1
         """
 
-        :param source:
-        :return: returns
+        :param source: the source vertex
+        :return: returns the smallest node that has the smallest path to the source
         """
+
+        if source not in self.graph:
+            return None, float('infinity')
+
+        # initialize sets
+        distances = {node: float('infinity') for node in self.graph}
+        distances[start_book] = 0
+        heap = [(0, start_book)]
+        visited = set()
+
+        while heap:
+            current_distance, current_book = heapq.heappop(heap)
+
+            if current_book in visited:
+                continue
+
+            visited.add(current_book)
+
+            if current_book != start_book:
+                return current_book
+
+            for neighbor, edge_data in self.graph[current_book].items():
+                distance = current_distance + edge_data['weight']
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    heapq.heappush(heap, (distance, neighbor))
+
+        # if nothing is returned then no books are connected
+        return None, float('infinity')
 
     def random_walk(self, source, steps = 100): #algorithm 2
         """
