@@ -112,7 +112,7 @@ class Graph:
         visited = set()
         results = []
 
-        while heap and size(results) < 5:
+        while heap and len(results) < 5:
             current_distance, current_book = heapq.heappop(heap)
 
             if current_book in visited:
