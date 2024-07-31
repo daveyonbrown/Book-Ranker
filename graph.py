@@ -5,6 +5,7 @@ import networkx as nx
 from collections import defaultdict
 import math
 import random
+import heapq
 
 
 class Graph:
@@ -29,7 +30,7 @@ class Graph:
         nodes = set(self.book_ids) # each book is a node
         self.graph.add_nodes_from(nodes)
 
-        weights = defaultdict(int) # tuple to int. book1 <---> book2: weigth
+        weights = defaultdict(int) # tuple to int. book1 <---> book2: weight
         user_books = defaultdict(list) # user : books they rated 5 stars
         num_reviews = defaultdict(int) # determines popularity of book. Used for balancing of weights.
 
@@ -94,10 +95,45 @@ class Graph:
 
     def dijkstras_algorithm(self, source): # algorithm 1
         """
-
-        :param source:
-        :return: returns
+        :param source: the source vertex (book)
+        :return: returns the 5 nodes that have the smallest path to the source
         """
+        # create graph
+        if self.graph is None:
+            self.construct_simple_1()
+
+        # source not in graph
+        if source not in self.graph:
+            return None, float('infinity')
+
+        # initialize sets
+        # distances all set to infinity
+        distances = {node: float('infinity') for node in self.graph.nodes()}
+        distances[source] = 0 # distance to self 0
+        heap = [(0, source)]
+
+
+        while heap:
+            # pop node with the smallest distance
+            current_distance, current_book = heapq.heappop(heap)
+
+            # if the current path is shorter than a path already found skip
+            if current_book > distances[current_book]:
+                continue
+
+            # go through all of current book's neighbors
+            for neighbor, edge_data in self.graph[current_book].items():
+                # calculate the distance from source to neighbor through current node
+                distance = current_distance + edge_data['weight']
+                # if the current distance is shorter, override previous distance
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    heapq.heappush(heap, (distance, neighbor))
+
+        # sort all books by distance and return smallest 5 into results
+        results = sorted([(book, dist) for book, dist in distances.items() if book != source],key=lambda x: x[1])[:5]
+
+        return results
 
     def random_walk(self, source, steps = 100): #algorithm 2
         """
