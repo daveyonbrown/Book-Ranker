@@ -5,12 +5,18 @@ import pickle
 
 def main():
     g = Graph()
-    g.construct_simple()
+    g.construct_simple_1()
 
 
 
 
-    g.save("graph.pkl")
+    g.save("graphstpath.pkl")
+
+    y = Graph()
+    y.construct_simple_2()
+
+    y.save("graphrandomwalk.pkl")
+
 
 
 
