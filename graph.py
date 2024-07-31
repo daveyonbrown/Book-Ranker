@@ -95,33 +95,28 @@ class Graph:
 
     def dijkstras_algorithm(self, source): # algorithm 1
         """
-
-        :param source: the source vertex
+        :param source: the source vertex (book)
         :return: returns the 5 nodes that have the smallest path to the source
         """
+        # create graph
+        if self.graph is None:
+            self.construct_simple_1()
 
-        # case that book does not exist
+        # source not in graph
         if source not in self.graph:
             return None, float('infinity')
 
         # initialize sets
         # distances all set to infinity
-        distances = {node: float('infinity') for node in self.graph}
+        distances = {node: float('infinity') for node in self.graph.nodes()}
         distances[source] = 0 # distance to self 0
         heap = [(0, source)]
-        visited = set()
-        results = []
 
-        while heap and len(results) < 5:
+        while heap:
             current_distance, current_book = heapq.heappop(heap)
 
-            if current_book in visited:
+            if current_book > distances[current_book]:
                 continue
-
-            visited.add(current_book)
-
-            if current_book != start_book:
-                results.append(current_book)
 
             for neighbor, edge_data in self.graph[current_book].items():
                 distance = current_distance + edge_data['weight']
@@ -129,8 +124,9 @@ class Graph:
                     distances[neighbor] = distance
                     heapq.heappush(heap, (distance, neighbor))
 
-        # if nothing is returned then no books are connected
-        return results
+        closest_books = sorted([(book, dist) for book, dist in distances.items() if book != source_book_id],key=lambda x: x[1])[:5]
+
+        return closest_books
 
     def random_walk(self, source, steps = 100): #algorithm 2
         """
