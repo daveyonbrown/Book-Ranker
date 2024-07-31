@@ -100,13 +100,15 @@ class Graph:
         :return: returns the smallest node that has the smallest path to the source
         """
 
+        # case that book does not exist
         if source not in self.graph:
             return None, float('infinity')
 
         # initialize sets
+        # distances all set to infinity
         distances = {node: float('infinity') for node in self.graph}
-        distances[start_book] = 0
-        heap = [(0, start_book)]
+        distances[source] = 0 # distance to self 0
+        heap = [(0, source)]
         visited = set()
 
         while heap:
