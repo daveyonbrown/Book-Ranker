@@ -112,21 +112,28 @@ class Graph:
         distances[source] = 0 # distance to self 0
         heap = [(0, source)]
 
+
         while heap:
+            # pop node with the smallest distance
             current_distance, current_book = heapq.heappop(heap)
 
+            # if the current path is shorter than a path already found skip
             if current_book > distances[current_book]:
                 continue
 
+            # go through all of current book's neighbors
             for neighbor, edge_data in self.graph[current_book].items():
+                # calculate the distance from source to neighbor through current node
                 distance = current_distance + edge_data['weight']
+                # if the current distance is shorter, override previous distance
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
                     heapq.heappush(heap, (distance, neighbor))
 
-        closest_books = sorted([(book, dist) for book, dist in distances.items() if book != source_book_id],key=lambda x: x[1])[:5]
+        # sort all books by distance and return smallest 5 into results
+        results = sorted([(book, dist) for book, dist in distances.items() if book != source_book_id],key=lambda x: x[1])[:5]
 
-        return closest_books
+        return results
 
     def random_walk(self, source, steps = 100): #algorithm 2
         """
