@@ -97,7 +97,7 @@ class Graph:
         """
 
         :param source: the source vertex
-        :return: returns the smallest node that has the smallest path to the source
+        :return: returns the 5 nodes that have the smallest path to the source
         """
 
         # case that book does not exist
@@ -110,8 +110,9 @@ class Graph:
         distances[source] = 0 # distance to self 0
         heap = [(0, source)]
         visited = set()
+        results = []
 
-        while heap:
+        while heap and size(results) < 5:
             current_distance, current_book = heapq.heappop(heap)
 
             if current_book in visited:
@@ -120,7 +121,7 @@ class Graph:
             visited.add(current_book)
 
             if current_book != start_book:
-                return current_book
+                results.append(current_book)
 
             for neighbor, edge_data in self.graph[current_book].items():
                 distance = current_distance + edge_data['weight']
@@ -129,7 +130,7 @@ class Graph:
                     heapq.heappush(heap, (distance, neighbor))
 
         # if nothing is returned then no books are connected
-        return None, float('infinity')
+        return results
 
     def random_walk(self, source, steps = 100): #algorithm 2
         """
