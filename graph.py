@@ -131,7 +131,7 @@ class Graph:
                     heapq.heappush(heap, (distance, neighbor))
 
         # sort all books by distance and return smallest 5 into results
-        results = sorted([(book, dist) for book, dist in distances.items() if book != source_book_id],key=lambda x: x[1])[:5]
+        results = sorted([(book, dist) for book, dist in distances.items() if book != source],key=lambda x: x[1])[:5]
 
         return results
 
