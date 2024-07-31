@@ -116,14 +116,18 @@ class Graph:
         current = source
         counts = defaultdict(int) #nodes mapped how many times the walk landed on the node
         for i in range(steps):
-            counts[current] += 1
+
             neighbors = list(self.graph.neighbors(current))
+            if len(neighbors) == 0:
+                return counts
             weights = []
             for neighbor in neighbors:
                 weights.append(self.graph.get_edge_data(current, neighbor)["weight"])
-                probabilities = [weight / sum(weights) for weight in weights] # Turns the weights of the edges into a probability distribution
-                choice = random.choices(neighbors, probabilities, k=1)[0] ## randomly selects a neighboring node to visit
-        counts[choice] += 1
+            probabilities = [weight / sum(weights) for weight in weights] # Turns the weights of the edges into a probability distribution
+            choice = random.choices(neighbors, probabilities, k=1)[0] ## randomly selects a neighboring node to visit
+            if choice != source:
+                counts[choice] += 1
+                current = choice
         return counts ##this is one random walk. Run many times
 
     def random_walk_sim(self, source, num_walks, steps = 100):
