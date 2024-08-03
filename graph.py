@@ -18,6 +18,7 @@ class Graph:
         books = pd.read_csv("books.csv")
         self.user_ids = list(data["user_id"])
         self.book_ids = list(data["book_id"])
+        self.book_ids_inorder = list(range(1, 10001))
         self.reviews = list(data["rating"])
         self.book_names = list(books["original_title"])
         self.graph = None
@@ -83,7 +84,7 @@ class Graph:
 
 
         for(book1, book2), weight in weights.items(): # gets the key value pair
-            popularity = math.log1p(num_reviews[book1]) + math.log1p(num_reviews[book2])# used for balancing out overly popular books.
+            popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(num_reviews[book2]))# used for balancing out overly popular books.
             self.graph.add_edge(book1, book2, weight= weight / popularity if popularity != 0 else 0) #adds edge on the graph
         return self.graph
 

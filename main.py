@@ -2,12 +2,19 @@ import pandas
 from collections import defaultdict
 from graph import Graph
 import pickle
+import requests
 
 def main():
-    """
+
     g = Graph()
-    g.construct_simple_2()
-    g.save("graphrandomwalk.pkl")
+    g.load_graph("graphrandomwalk.pkl")
+
+    print("Number of nodes in the graph:", len(g.graph.nodes()))
+    print("Number of edges in the graph:", len(g.graph.edges()))
+
+    print(sorted(g.graph.nodes()))
+
+
     """
     g = Graph()
     source = 800
@@ -16,6 +23,11 @@ def main():
     for a, b in q:
         print("Book", a)
         print("Count", b)
+    """
+
+
+
+
 
 
 
