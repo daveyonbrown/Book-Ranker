@@ -7,6 +7,10 @@ import math
 import random
 import heapq
 
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 
 class Graph:
     def __init__(self):
@@ -45,8 +49,8 @@ class Graph:
                     weights[(books[i], books[j])] += 1 # adds 1 to weight between books if user rates both books highly
 
         for (book1, book2), weight in weights.items():  # gets the key value pair
-            popularity = math.log1p(num_reviews[book1]) + math.log1p(
-                num_reviews[book2])  # used for balancing out overly popular books.
+            popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(
+                num_reviews[book2]))  # used for balancing out overly popular books.
             self.graph.add_edge(book1, book2, weight= popularity / weight)  # adds edge on the graph. This is inversely related to the number of people who rated both books highly
         return self.graph
 
@@ -91,6 +95,7 @@ class Graph:
     def load_graph(self, name):
         with open(name, 'rb') as file:
             self.graph = pickle.load(file)
+        logging.debug("Pickle File Successfully loaded")
 
 
     def dijkstras_algorithm(self, source): # algorithm 1
@@ -156,7 +161,8 @@ class Graph:
         :param source: The vertex searched by the user.
         :param steps: The amount of times the function randomly switches vertices
         """
-        self.load_graph("graphrandomwalk.pkl")
+
+        logging.debug("Starting random walk")
 
         current = source
         counts = defaultdict(int) #nodes mapped how many times the walk landed on the node
@@ -164,7 +170,7 @@ class Graph:
 
             neighbors = list(self.graph.neighbors(current))
             if len(neighbors) == 0: ## we will handle this case later. Possibly reccomend random books
-                return self.random_walk(random.choice(list(self.graph.nodes)), steps)
+                break
             weights = []
             weights_sum = 0 ##keep track to turn into probabilities
             for neighbor in neighbors:
@@ -197,6 +203,7 @@ class Graph:
         :param steps: used in the random walk function
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
+        print("Working?")
         self.load_graph("graphrandomwalk.pkl")
         counts = defaultdict(int)
         for i in range(num_walks):
