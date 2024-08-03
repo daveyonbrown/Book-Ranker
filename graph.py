@@ -2,7 +2,7 @@ import pickle
 
 import pandas as pd
 import networkx as nx
-from collections import defaultdict
+from collections import defaultdict, deque
 import math
 import random
 import heapq
@@ -135,6 +135,15 @@ class Graph:
 
         return results
 
+    def search(self, source):
+        v = set()
+        q = deque([source])
+
+        while q:
+            current = q.popleft()
+
+
+
     def random_walk(self, source, steps = 100): #algorithm 2
         """
 
@@ -155,7 +164,7 @@ class Graph:
 
             neighbors = list(self.graph.neighbors(current))
             if len(neighbors) == 0: ## we will handle this case later. Possibly reccomend random books
-                break
+                return self.random_walk(random.choice(list(self.graph.nodes)), steps)
             weights = []
             weights_sum = 0 ##keep track to turn into probabilities
             for neighbor in neighbors:
@@ -166,11 +175,13 @@ class Graph:
             probabilities = []
             for weight in weights:
                 probability = weight / weights_sum # turn into a probability distribution function
+
                 probabilities.append(probability)
             choice = random.choices(neighbors, probabilities, k=1)[0]
             if choice != source:
                 counts[choice] += 1
             current = choice
+        return counts
 
 
 
@@ -186,21 +197,28 @@ class Graph:
         :param steps: used in the random walk function
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
+        self.load_graph("graphrandomwalk.pkl")
+        counts = defaultdict(int)
+        for i in range(num_walks):
+            rw = self.random_walk(source, steps)
+            for node, count in rw.items():
+                counts[node] += count
+        reccomendations = heapq.nlargest(5, counts.items(), key=lambda x: x[1])
+
+
+        return reccomendations
+
+
+
+    def reccommend_books_helper(self, source):
+        rw = self.random_walk_sim(source, 1000, 100)
+        return rw
 
 
 
 
 
 
-
-
-
-
-
-
-
-    def reccommend_books(self):
-        return 0
 
 
 

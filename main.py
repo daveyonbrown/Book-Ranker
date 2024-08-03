@@ -5,17 +5,18 @@ import pickle
 
 def main():
     g = Graph()
-    g.construct_simple_1()
+    source = 500
+    q = g.random_walk_sim(source, num_walks=1000, steps=100)
+
+    for a, b in q:
+        print("Book", a)
+        print("Count", b)
 
 
 
 
-    g.save("graphstpath.pkl")
 
-    y = Graph()
-    y.construct_simple_2()
 
-    y.save("graphrandomwalk.pkl")
 
 
 
