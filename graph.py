@@ -99,17 +99,18 @@ class Graph:
         :return: returns the 5 nodes that have the smallest path to the source
         """
         # create graph
-        if self.graph is None:
-            self.construct_simple_1()
+        self.load_graph('graphstpath.pkl')
 
         # source not in graph
         if source not in self.graph:
-            return None, float('infinity')
+            return None
 
         # initialize sets
         # distances all set to infinity
         distances = {node: float('infinity') for node in self.graph.nodes()}
         distances[source] = 0 # distance to self 0
+        paths = {node: [] for node in self.graph.nodes()}
+        paths[source] = [source]
         heap = [(0, source)]
 
 
@@ -118,7 +119,7 @@ class Graph:
             current_distance, current_book = heapq.heappop(heap)
 
             # if the current path is shorter than a path already found skip
-            if current_book > distances[current_book]:
+            if current_distance > distances[current_book]:
                 continue
 
             # go through all of current book's neighbors
@@ -128,12 +129,16 @@ class Graph:
                 # if the current distance is shorter, override previous distance
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
+                    paths[neighbor] = paths[current_book] + [neighbor]
                     heapq.heappush(heap, (distance, neighbor))
 
         # sort all books by distance and return smallest 5 into results
-        results = sorted([(book, dist) for book, dist in distances.items() if book != source],key=lambda x: x[1])[:5]
+        sorted_paths = sorted([(dist, path) for book, (dist, path) in
+                               zip(distances.keys(), zip(distances.values(), paths.values()))
+                               if book != source],
+                              key=lambda x: x[0])
 
-        return results
+        return sorted_paths[:5]
 
     def random_walk(self, source, steps = 100): #algorithm 2
         """

@@ -8,14 +8,16 @@ def main():
     g.construct_simple_1()
 
 
-
-
-    g.save("graphstpath.pkl")
+    #g.save("graphstpath.pkl")
+    #source = input("enter source book")
+    dijkstra_results = g.dijkstras_algorithm('The Great Gatsby')
+    for book in dijkstra_results:
+        print(book)
 
     y = Graph()
     y.construct_simple_2()
 
-    y.save("graphrandomwalk.pkl")
+    #y.save("graphrandomwalk.pkl")
 
 
 
