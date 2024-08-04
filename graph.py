@@ -21,6 +21,9 @@ class Graph:
         self.book_ids_inorder = list(range(1, 10001))
         self.reviews = list(data["rating"])
         self.book_names = list(books["original_title"])
+        self.book_ids_to_names = {}
+        for i in range(1,10001):
+            self.book_ids_to_names[i] = self.book_names[i-1]
         self.graph = None
 
 
@@ -82,10 +85,22 @@ class Graph:
                     weights[(books[i], books[j])] += 1 # adds 1 to weight between books if user rates both books highly
 
 
-
+        edges = defaultdict(list)#taking top n edges by weight. Reduces randomness in random walk function and increases computation speed
         for(book1, book2), weight in weights.items(): # gets the key value pair
             popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(num_reviews[book2]))# used for balancing out overly popular books.
-            self.graph.add_edge(book1, book2, weight= weight / popularity if popularity != 0 else 0) #adds edge on the graph
+            weight = weight / popularity if popularity != 0 else 0
+            edges[book1].append((book2, weight))
+            edges[book2].append((book1, weight))
+
+        for book in edges: ##now we get the top n
+            if len(edges[book]) >= 50:
+                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:50] ## gets the top 50 edges by weight. could tune around to find optimal value
+                for neighbor, wght in top_edges:
+                    self.graph.add_edge(book, neighbor, weight=wght)
+            else:
+                for neighbor, wght in edges[book]:
+                    self.graph.add_edge(book, neighbor, weight=wght)
+
         return self.graph
 
 
