@@ -22,6 +22,7 @@ class Graph:
         self.reviews = list(data["rating"])
         self.book_names = list(books["original_title"])
         self.book_ids_to_names = {}
+        self.authors = list()
         for i in range(1,10001):
             self.book_ids_to_names[i] = self.book_names[i-1]
         self.graph = None
