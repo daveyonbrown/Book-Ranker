@@ -20,9 +20,13 @@ class Graph:
         self.book_ids = list(data["book_id"])
         self.book_ids_inorder = list(range(1, 10001))
         self.reviews = list(data["rating"])
+        self.titles = list(books["title"])
         self.book_names = list(books["original_title"])
+        for i in range(len(self.book_names)):
+            if(pd.isna(self.book_names[i])):
+                self.book_names[i] = self.titles[i]
 
-        self.book_ids_to_names = {}
+        self.book_ids_to_names = {} ##REMOVE THIS LATER
         self.authors = list()
         for i in range(1,10001):
             self.book_ids_to_names[i] = self.book_names[i-1]
@@ -37,7 +41,7 @@ class Graph:
         name = name.lower()
         book_names_lower = []
         for i in range(len(self.book_names)):
-            book_names_lower = self.book_names.lower()
+            book_names_lower[i] = self.book_names[i].lower()
         index = book_names_lower.index(name)
         return index + 1
 
@@ -118,6 +122,29 @@ class Graph:
 
         return self.graph
 
+    def count_nans_and_invalids(self):
+        nan_count = 0
+        invalid_nodes_count = 0
+        invalid_weights_count = 0
+
+        # Check for NaN in book names and invalid nodes
+        for book_id in self.book_ids_inorder:
+            if pd.isna(self.book_names[book_id - 1]):
+                nan_count += 1
+            # Check if book_id is not a number
+            if not isinstance(book_id, int):
+                invalid_nodes_count += 1
+
+        # Check for NaN weights and ensure they are numbers
+        for (book1, book2, data) in self.graph.edges(data=True):
+            weight = data['weight']
+            if pd.isna(weight):
+                invalid_weights_count += 1
+            # Check if the weight is a number
+            elif not isinstance(weight, (int, float)):
+                invalid_weights_count += 1
+
+        return nan_count, invalid_nodes_count, invalid_weights_count
 
     def save(self, name): # save as binary file so the construct simple does not have to be run every time
         with open(name, 'wb') as file:
