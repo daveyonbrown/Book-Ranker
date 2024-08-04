@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class Graph:
     def __init__(self):
-        data = pd.read_csv("ratings.csv")
-        books = pd.read_csv("books.csv")
+        data = pd.read_csv("Book-Ranker/ratings.csv")
+        books = pd.read_csv("Book-Ranker/books.csv")
         self.user_ids = list(data["user_id"])
         self.book_ids = list(data["book_id"])
         self.book_ids_inorder = list(range(1, 10001))
@@ -222,7 +222,7 @@ class Graph:
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
         print("Working?")
-        self.load_graph("graphrandomwalk.pkl")
+        self.load_graph("Book-Ranker/graphrandomwalk.pkl")
         counts = defaultdict(int)
         for i in range(num_walks):
             rw = self.random_walk(source, steps)

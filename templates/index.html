@@ -116,19 +116,19 @@
                         <th>Column 1</th>
                     </tr>
                     <tr>
-                        <td>Row 1</td>
+                        <td id="1Row1"> </td>
                     </tr>
                     <tr>
-                        <td>Row 2</td>
+                       <td id="1Row2"> </td>
                     </tr>
                     <tr>
-                        <td>Row 3</td>
+                       <td id="1Row3"> </td>
                     </tr>
                     <tr>
-                        <td>Row 4</td>
+                        <td id="1Row4"> </td>
                     </tr>
                     <tr>
-                        <td>Row 5</td>
+                        <td id="1Row5"> </td>
                     </tr>
                 </table>
                 <div class="time-header"> Search Time: 0.00</div>
@@ -139,20 +139,20 @@
                     <tr>
                         <th>Column 2</th>
                     </tr>
-                    <tr>
-                        <td>Row 1</td>
+                   <tr>
+                        <td id="Row1"> </td>
                     </tr>
                     <tr>
-                        <td>Row 2</td>
+                       <td id="Row2"> </td>
                     </tr>
                     <tr>
-                        <td>Row 3</td>
+                       <td id="Row3"> </td>
                     </tr>
                     <tr>
-                        <td>Row 4</td>
+                        <td id="Row4"> </td>
                     </tr>
                     <tr>
-                        <td>Row 5</td>
+                        <td id="Row5"> </td>
                     </tr>
                 </table>
                  <div class="time-header"> Search Time: 0.00</div>
@@ -162,15 +162,48 @@
 
     <script>
         function Search() {
-            var query = document.getElementById('searchBox').value;
-            var resultDiv = document.getElementById('result');
-            var tablesContainer = document.getElementById('tablesContainer');
+           var query = document.getElementById('searchBox').value; //gets the value from the search input of box
+            var resultDiv = document.getElementById('result'); //references the results
+            var tablesContainer = document.getElementById('tablesContainer');// references the table container
+            var row1 = document.getElementById('Row1'); // gets refernce to the first row of the table and shows book name
+            var row2 = document.getElementById('Row2');
+            var row3 = document.getElementById('Row3');
+            var row4 = document.getElementById('Row4');
+            var row5 = document.getElementById('Row5');
 
-            // Display the search result
-            resultDiv.textContent = 'You searched for: ' + query;
 
-            // Show the tables
-            tablesContainer.style.display = 'block';
+            //sends a POST request to the /search endpoint
+            fetch('/search', {
+
+                method: 'POST',// calls the http method in app.py
+                headers: {
+                    'Content-Type': 'application/json', // puts the request header to show Json loading
+                },
+                body: JSON.stringify({ book_id: query }), // converts the book ID to a JSon string and sends it to body
+            })
+            .then(response => {
+                if (!response.ok) { // checkds for any 404 or 500 errors
+                    throw new Error('Netwok err ' + response.statusText);
+                }
+                // puts json string in body
+                return response.json();
+            })
+            .then(data => {
+                // updates the result with search and thing searched for
+                resultDiv.textContent = 'You searched for: ' + query;
+
+                var bookNames = data.book_names;
+                row1.textContent = bookNames[0] || '';
+                row2.textContent = bookNames[1] || '';
+                row3.textContent = bookNames[2] || '';
+                row4.textContent = bookNames[3] || '';
+                row5.textContent = bookNames[4] || '';
+
+                tablesContainer.style.display = 'block';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         }
     </script>
 </body>

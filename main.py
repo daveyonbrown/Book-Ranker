@@ -1,14 +1,19 @@
+from flask import Flask, render_template, request, jsonify
+
 import pandas
 from collections import defaultdict
 from graph import Graph
 import pickle
 import requests
 
+
+
+
 def main():
 
     g = Graph()
-    #g.construct_simple_2()
-    #g.save("graphrandomwalk.pkl")
+    # g.construct_simple_2()
+    # g.save("graphrandomwalk.pkl")
 
     g.load_graph("graphrandomwalk.pkl")
     print(g.book_ids_to_names[500])
