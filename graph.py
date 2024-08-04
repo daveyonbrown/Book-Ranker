@@ -115,10 +115,10 @@ class Graph:
             if len(edges[book]) >= 50:
                 top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:50] ## gets the top 50 edges by weight. could tune around to find optimal value
                 for neighbor, wght in top_edges:
-                    self.graph.add_edge(book, neighbor, weight=wght)
+                    self.graph.add_edge(book, neighbor, weight=((wght* (10**5))**3))
             else:
                 for neighbor, wght in edges[book]:
-                    self.graph.add_edge(book, neighbor, weight=wght)
+                    self.graph.add_edge(book, neighbor, weight=((wght*(10**5))**3))
 
         return self.graph
 
@@ -198,12 +198,7 @@ class Graph:
 
         return results
 
-    def search(self, source):
-        v = set()
-        q = deque([source])
 
-        while q:
-            current = q.popleft()
 
 
 
@@ -240,7 +235,11 @@ class Graph:
             for weight in weights:
                 probability = weight / weights_sum # turn into a probability distribution function
 
+
                 probabilities.append(probability)
+
+
+
             choice = random.choices(neighbors, probabilities, k=1)[0]
             if choice != source:
                 counts[choice] += 1
