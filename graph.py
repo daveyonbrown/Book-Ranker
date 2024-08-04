@@ -21,14 +21,27 @@ class Graph:
         self.book_ids_inorder = list(range(1, 10001))
         self.reviews = list(data["rating"])
         self.book_names = list(books["original_title"])
+
         self.book_ids_to_names = {}
+        self.authors = list()
         for i in range(1,10001):
             self.book_ids_to_names[i] = self.book_names[i-1]
         self.graph = None
 
+
     def get_name(self, book_id):  # get name takes in the books id num returns name
 
         return self.book_names[book_id - 1]  # has to do id - 1 to get rid of extra line
+
+    def get_id(self, name):
+        name = name.lower()
+        book_names_lower = []
+        for i in range(len(self.book_names)):
+            book_names_lower = self.book_names.lower()
+        index = book_names_lower.index(name)
+        return index + 1
+
+
 
     def construct_simple_1(self):
         """
