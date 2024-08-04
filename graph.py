@@ -26,7 +26,9 @@ class Graph:
             self.book_ids_to_names[i] = self.book_names[i-1]
         self.graph = None
 
+    def get_name(self, book_id):  # get name takes in the books id num returns name
 
+        return self.book_names[book_id - 1]  # has to do id - 1 to get rid of extra line
 
     def construct_simple_1(self):
         """
