@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class Graph:
     def __init__(self):
-        data = pd.read_csv("Book-Ranker/ratings.csv")
-        books = pd.read_csv("Book-Ranker/books.csv")
+        data = pd.read_csv("ratings.csv")
+        books = pd.read_csv("books.csv")
         self.user_ids = list(data["user_id"])
         self.book_ids = list(data["book_id"])
         self.book_ids_inorder = list(range(1, 10001))
@@ -37,7 +37,7 @@ class Graph:
         name = name.lower()
         book_names_lower = []
         for i in range(len(self.book_names)):
-            book_names_lower = self.book_names.lower()
+            book_names_lower = self.book_names[i].lower()
         index = book_names_lower.index(name)
         return index + 1
 
@@ -72,6 +72,7 @@ class Graph:
                 num_reviews[book2]))  # used for balancing out overly popular books.
             self.graph.add_edge(book1, book2, weight= popularity / weight)  # adds edge on the graph. This is inversely related to the number of people who rated both books highly
         return self.graph
+
 
 
     def construct_simple_2(self):
@@ -138,37 +139,26 @@ class Graph:
         if self.graph is None:
             self.construct_simple_1()
 
-        # source not in graph
         if source not in self.graph:
             return None, float('infinity')
 
-        # initialize sets
-        # distances all set to infinity
         distances = {node: float('infinity') for node in self.graph.nodes()}
-        distances[source] = 0 # distance to self 0
+        distances[source] = 0
         heap = [(0, source)]
 
-
         while heap:
-            # pop node with the smallest distance
             current_distance, current_book = heapq.heappop(heap)
 
-            # if the current path is shorter than a path already found skip
-            if current_book > distances[current_book]:
+            if current_distance > distances[current_book]:
                 continue
 
-            # go through all of current book's neighbors
             for neighbor, edge_data in self.graph[current_book].items():
-                # calculate the distance from source to neighbor through current node
                 distance = current_distance + edge_data['weight']
-                # if the current distance is shorter, override previous distance
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
                     heapq.heappush(heap, (distance, neighbor))
 
-        # sort all books by distance and return smallest 5 into results
-        results = sorted([(book, dist) for book, dist in distances.items() if book != source],key=lambda x: x[1])[:5]
-
+        results = sorted([(book, dist) for book, dist in distances.items() if book != source], key=lambda x: x[1])[:5]
         return results
 
     def search(self, source):
