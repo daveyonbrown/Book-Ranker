@@ -28,11 +28,11 @@ def search():
         book_id = int(data['book_id'])
 
         source = 500
-        q = graph.random_walk_sim(book_id, num_walks=1000, steps=100)
-
-        for a, b in q:
-            print("Book", graph.book_ids_to_names[a])
-            print("Count", b)
+        # q = graph.random_walk_sim(book_id, num_walks=1000, steps=100)
+        #
+        # for a, b in q:
+        #     print("Book", graph.book_ids_to_names[a])
+        #     print("Count", b)
 
         # #gets the book name that is attached to book ID using graph
         # book_name = graph.get_name(book_id)
