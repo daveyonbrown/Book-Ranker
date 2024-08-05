@@ -6,6 +6,7 @@ from collections import defaultdict, deque
 import math
 import random
 import heapq
+import requests
 
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -14,14 +15,14 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class Graph:
     def __init__(self):
-        data = pd.read_csv("ratings.csv")
-        books = pd.read_csv("books.csv")
-        self.user_ids = list(data["user_id"])
-        self.book_ids = list(data["book_id"])
+        self.data = pd.read_csv("ratings.csv")
+        self.books = pd.read_csv("books.csv")
+        self.user_ids = list(self.data["user_id"])
+        self.book_ids = list(self.data["book_id"])
         self.book_ids_inorder = list(range(1, 10001))
-        self.reviews = list(data["rating"])
-        self.titles = list(books["title"])
-        self.book_names = list(books["original_title"])
+        self.reviews = list(self.data["rating"])
+        self.titles = list(self.books["title"])
+        self.book_names = list(self.books["original_title"])
         for i in range(len(self.book_names)):
             if(pd.isna(self.book_names[i])):
                 self.book_names[i] = self.titles[i]
@@ -44,6 +45,18 @@ class Graph:
             book_names_lower[i] = self.book_names[i].lower()
         index = book_names_lower.index(name)
         return index + 1
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -113,7 +126,7 @@ class Graph:
 
         for book in edges: ##now we get the top n
             if len(edges[book]) >= 50:
-                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:50] ## gets the top 50 edges by weight. could tune around to find optimal value
+                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:32] ## gets the top 50 edges by weight. could tune around to find optimal value
                 for neighbor, wght in top_edges:
                     self.graph.add_edge(book, neighbor, weight=((wght* (10**5))**3))
             else:
@@ -122,29 +135,6 @@ class Graph:
 
         return self.graph
 
-    def count_nans_and_invalids(self):
-        nan_count = 0
-        invalid_nodes_count = 0
-        invalid_weights_count = 0
-
-        # Check for NaN in book names and invalid nodes
-        for book_id in self.book_ids_inorder:
-            if pd.isna(self.book_names[book_id - 1]):
-                nan_count += 1
-            # Check if book_id is not a number
-            if not isinstance(book_id, int):
-                invalid_nodes_count += 1
-
-        # Check for NaN weights and ensure they are numbers
-        for (book1, book2, data) in self.graph.edges(data=True):
-            weight = data['weight']
-            if pd.isna(weight):
-                invalid_weights_count += 1
-            # Check if the weight is a number
-            elif not isinstance(weight, (int, float)):
-                invalid_weights_count += 1
-
-        return nan_count, invalid_nodes_count, invalid_weights_count
 
     def save(self, name): # save as binary file so the construct simple does not have to be run every time
         with open(name, 'wb') as file:
