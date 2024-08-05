@@ -1,5 +1,6 @@
 import pickle
 
+import numpy as np
 import pandas as pd
 import networkx as nx
 from collections import defaultdict, deque
@@ -128,10 +129,10 @@ class Graph:
             if len(edges[book]) >= 50:
                 top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:32] ## gets the top 50 edges by weight. could tune around to find optimal value
                 for neighbor, wght in top_edges:
-                    self.graph.add_edge(book, neighbor, weight=((wght* (10**5))**3))
+                    self.graph.add_edge(book, neighbor, weight=(math.log1p(wght* (10**5))))
             else:
                 for neighbor, wght in edges[book]:
-                    self.graph.add_edge(book, neighbor, weight=((wght*(10**5))**3))
+                    self.graph.add_edge(book, neighbor, weight=(math.log1p(wght*(10**5))))
 
         return self.graph
 
@@ -192,7 +193,7 @@ class Graph:
 
 
 
-    def random_walk(self, source, steps = 100): #algorithm 2
+    def random_walk(self, source, steps = 100, alpha = 0.15): #algorithm 2
         """
 
         This method uses a more probabilistic approach for the reccomendation.
@@ -214,23 +215,32 @@ class Graph:
             neighbors = list(self.graph.neighbors(current))
             if len(neighbors) == 0: ## we will handle this case later. Possibly reccomend random books
                 break
+
+
             weights = []
-            weights_sum = 0 ##keep track to turn into probabilities
             for neighbor in neighbors:
                 edge_data = self.graph.get_edge_data(current, neighbor)
                 weight = edge_data["weight"]
                 weights.append(weight)
-                weights_sum += weight
             probabilities = []
-            for weight in weights:
+            min_weight = min(weights)
+            max_weight = max(weights)
+            normalized_weights = [(w - min_weight) / (max_weight - min_weight) for w in weights]
+            weights_sum = sum(normalized_weights)
+
+            for weight in normalized_weights:
                 probability = weight / weights_sum # turn into a probability distribution function
-
-
                 probabilities.append(probability)
 
+            for nbr, prob in zip(neighbors, probabilities):
+                print("Neighbor: ", self.get_name(nbr), "Probability: ", prob)
 
+            #print(f"Source: {source}, Neighbors: {neighbors}, Probabilities: {probabilities}")
+            if random.random() < alpha and current != source:
+                choice = source
 
-            choice = random.choices(neighbors, probabilities, k=1)[0]
+            else:
+                choice = random.choices(neighbors, probabilities, k=1)[0]
             if choice != source:
                 counts[choice] += 1
             current = choice
@@ -267,20 +277,3 @@ class Graph:
     def reccommend_books_helper(self, source):
         rw = self.random_walk_sim(source, 1000, 100)
         return rw
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
