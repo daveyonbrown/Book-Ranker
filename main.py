@@ -45,12 +45,13 @@ def main():
     #     print("Count", b)
 
 
-    source_book_id = 500
+    source_book_id = 499
     print(f"Book name for ID {source_book_id}: {g.book_ids_to_names[source_book_id]}")
 
     # used to cross reference our dijkstra's algorithm
     test = g.dijkstra_test(source_book_id)
-    print(test)
+    for book_id, distance in test:
+        print(f"Book ID: {book_id}, Book Name: {g.book_ids_to_names[book_id]}, Distance: {distance}")
 
 
     shortest_paths = g.dijkstras_algorithm(source_book_id)

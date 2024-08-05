@@ -129,7 +129,7 @@ class Graph:
             self.graph = pickle.load(file)
         logging.debug("Pickle File Successfully loaded")
 
-    def dijkstra_test(self, book_id, num_closest=5):
+    def dijkstra_test(self, source):
         """
         Find the num_closest closest nodes to the given book_id using Dijkstra's algorithm.
         """
@@ -137,12 +137,13 @@ class Graph:
             self.construct_simple_1()
 
         # Compute the shortest paths from the given book_id to all other nodes
-        lengths = nx.single_source_dijkstra_path_length(self.graph, book_id)
+        lengths = nx.single_source_dijkstra_path_length(self.graph, source)
 
-        # Get the num_closest nodes with the smallest distances
-        closest_nodes = sorted(lengths.items(), key=lambda x: x[1])[1:num_closest + 1]
+        # Get the closest nodes with the smallest distances
+        results = sorted([(book, dist) for book, dist in lengths.items() if book != source], key=lambda x: x[1])[:5]
 
-        return [(self.get_name(node), distance) for node, distance in closest_nodes]
+        return results
+
 
     def dijkstras_algorithm(self, source): # algorithm 1
         """
@@ -241,7 +242,7 @@ class Graph:
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
         print("Working?")
-        self.load_graph("Book-Ranker/graphrandomwalk.pkl")
+        self.load_graph("graphrandomwalk.pkl")
         counts = defaultdict(int)
         for i in range(num_walks):
             rw = self.random_walk(source, steps)
