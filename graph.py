@@ -6,6 +6,7 @@ from collections import defaultdict, deque
 import math
 import random
 import heapq
+import requests
 
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -14,15 +15,19 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 class Graph:
     def __init__(self):
-        data = pd.read_csv("Book-Ranker/ratings.csv")
-        books = pd.read_csv("Book-Ranker/books.csv")
-        self.user_ids = list(data["user_id"])
-        self.book_ids = list(data["book_id"])
+        self.data = pd.read_csv("ratings.csv")
+        self.books = pd.read_csv("books.csv")
+        self.user_ids = list(self.data["user_id"])
+        self.book_ids = list(self.data["book_id"])
         self.book_ids_inorder = list(range(1, 10001))
-        self.reviews = list(data["rating"])
-        self.book_names = list(books["original_title"])
+        self.reviews = list(self.data["rating"])
+        self.titles = list(self.books["title"])
+        self.book_names = list(self.books["original_title"])
+        for i in range(len(self.book_names)):
+            if(pd.isna(self.book_names[i])):
+                self.book_names[i] = self.titles[i]
 
-        self.book_ids_to_names = {}
+        self.book_ids_to_names = {} ##REMOVE THIS LATER
         self.authors = list()
         for i in range(1,10001):
             self.book_ids_to_names[i] = self.book_names[i-1]
@@ -37,9 +42,21 @@ class Graph:
         name = name.lower()
         book_names_lower = []
         for i in range(len(self.book_names)):
-            book_names_lower = self.book_names.lower()
+            book_names_lower[i] = self.book_names[i].lower()
         index = book_names_lower.index(name)
         return index + 1
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -109,12 +126,12 @@ class Graph:
 
         for book in edges: ##now we get the top n
             if len(edges[book]) >= 50:
-                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:50] ## gets the top 50 edges by weight. could tune around to find optimal value
+                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:32] ## gets the top 50 edges by weight. could tune around to find optimal value
                 for neighbor, wght in top_edges:
-                    self.graph.add_edge(book, neighbor, weight=wght)
+                    self.graph.add_edge(book, neighbor, weight=((wght* (10**5))**3))
             else:
                 for neighbor, wght in edges[book]:
-                    self.graph.add_edge(book, neighbor, weight=wght)
+                    self.graph.add_edge(book, neighbor, weight=((wght*(10**5))**3))
 
         return self.graph
 
@@ -171,12 +188,7 @@ class Graph:
 
         return results
 
-    def search(self, source):
-        v = set()
-        q = deque([source])
 
-        while q:
-            current = q.popleft()
 
 
 
@@ -213,7 +225,11 @@ class Graph:
             for weight in weights:
                 probability = weight / weights_sum # turn into a probability distribution function
 
+
                 probabilities.append(probability)
+
+
+
             choice = random.choices(neighbors, probabilities, k=1)[0]
             if choice != source:
                 counts[choice] += 1
@@ -235,7 +251,7 @@ class Graph:
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
         print("Working?")
-        self.load_graph("Book-Ranker/graphrandomwalk.pkl")
+        self.load_graph("graphrandomwalk.pkl")
         counts = defaultdict(int)
         for i in range(num_walks):
             rw = self.random_walk(source, steps)
