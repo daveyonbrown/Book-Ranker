@@ -129,6 +129,20 @@ class Graph:
             self.graph = pickle.load(file)
         logging.debug("Pickle File Successfully loaded")
 
+    def dijkstra_test(self, book_id, num_closest=5):
+        """
+        Find the num_closest closest nodes to the given book_id using Dijkstra's algorithm.
+        """
+        if self.graph is None:
+            self.construct_simple_1()
+
+        # Compute the shortest paths from the given book_id to all other nodes
+        lengths = nx.single_source_dijkstra_path_length(self.graph, book_id)
+
+        # Get the num_closest nodes with the smallest distances
+        closest_nodes = sorted(lengths.items(), key=lambda x: x[1])[1:num_closest + 1]
+
+        return [(self.get_name(node), distance) for node, distance in closest_nodes]
 
     def dijkstras_algorithm(self, source): # algorithm 1
         """
@@ -160,6 +174,8 @@ class Graph:
 
         results = sorted([(book, dist) for book, dist in distances.items() if book != source], key=lambda x: x[1])[:5]
         return results
+
+
 
     def search(self, source):
         v = set()
