@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!--special character encoding for site*/-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Ranker</title> <!--title of webpage -->
+    <style>
+        body {
+            font-family: "Times New Roman", sans-serif; /*sets font for whole page*/
+            display: flex;/* flex box to align all items */
+            justify-content: flex-start; /* Align items to the start of the container horizontally*/
+            align-items: center;/* aligns items to the center of the container vertically  */
+            flex-direction: column;/* */
+            height: 100vh;
+            margin: 0;
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .Namecard {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .search-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-left: 20px;
+        }
+        .search-box {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .search-button:hover {
+            background-color: darkblue;
+        }
+        .result {
+            font-size: 18px;
+            margin-top: 0px;
+            color: #333;
+        }
+        .tables-container {
+            width: 80%;
+            margin-top: 80px;
+            display: none; /* Hide tables initially */
+        }
+        .table-wrapper {
+            display: flex;
+            justify-content: space-around;
+        }
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 10px; /* Space between the two tables */
+        }
+        .tables-header {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 10px; /* Space between text and table */
+        }
+        .time-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px; /* Space between text and table */
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="Namecard" id="Namecard">Book Ranker</div>
+        <div class="search-container" id="searchContainer">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search...">
+            <button class="search-button" onclick="Search()">Search</button>
+        </div>
+    </div>
+    <div class="result" id="result"></div>
+
+    <div class="tables-container" id="tablesContainer">
+        <div class="table-wrapper">
+            <div class="table-container">
+                <div class="tables-header">Dijkstra's Algorithm</div>
+                <table>
+                    <tr>
+                        <th> </th>
+                    </tr>
+                    <tr>
+                        <td id="1Row1"> </td>
+                    </tr>
+                    <tr>
+                       <td id="1Row2"> </td>
+                    </tr>
+                    <tr>
+                       <td id="1Row3"> </td>
+                    </tr>
+                    <tr>
+                        <td id="1Row4"> </td>
+                    </tr>
+                    <tr>
+                        <td id="1Row5"> </td>
+                    </tr>
+                </table>
+                <div class="time-header"> Search Time: 0.00</div>
+            </div>
+            <div class="table-container">
+                <div class="tables-header"> Random Walk Algorithm </div>
+                <table>
+                    <tr>
+                        <th> </th>
+                    </tr>
+                   <tr>
+                        <td id="Row1"> </td>
+                    </tr>
+                    <tr>
+                       <td id="Row2"> </td>
+                    </tr>
+                    <tr>
+                       <td id="Row3"> </td>
+                    </tr>
+                    <tr>
+                        <td id="Row4"> </td>
+                    </tr>
+                    <tr>
+                        <td id="Row5"> </td>
+                    </tr>
+                </table>
+                 <div class="time-header"> Search Time: 0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function Search() {
+           var query = document.getElementById('searchBox').value; //gets the value from the search input of box
+            var resultDiv = document.getElementById('result'); //references the results
+            var tablesContainer = document.getElementById('tablesContainer');// references the table container
+            var row1A1 = document.getElementById('1Row1');
+            var row2A1 = document.getElementById('1Row2');
+            var row3A1 = document.getElementById('1Row3');
+            var row4A1 = document.getElementById('1Row4');
+            var row5A1 = document.getElementById('1Row5');
+            var row1 = document.getElementById('Row1'); // gets refernce to the first row of the table and shows book name
+            var row2 = document.getElementById('Row2');
+            var row3 = document.getElementById('Row3');
+            var row4 = document.getElementById('Row4');
+            var row5 = document.getElementById('Row5');
+
+
+            //sends a POST request to the /search endpoint
+            fetch('/search', {
+
+                method: 'POST',// calls the http method in app.py
+                headers: {
+                    'Content-Type': 'application/json', // puts the request header to show Json loading
+                },
+                body: JSON.stringify({ book_name: query }), // converts the book ID to a JSon string and sends it to body
+            })
+            .then(response => {
+                if (!response.ok) { // checkds for any 404 or 500 errors
+                    resultDiv.innerHTML = 'Invalid Book name: ' + query ;
+                    resultDiv.innerHTML += `<br><b>Please enter a valid book title</b>`;
+                    throw new Error('Netwok err ' + response.statusText);
+                }
+                // puts json string in body
+                return response.json();
+            })
+            .then(data => {
+                // updates the result with search and thing searched for
+                resultDiv.textContent = 'You searched for: ' + query;
+
+                resultDiv.innerHTML += `<br><b>Others Also Liked These Books below</b>`;
+
+
+                 var dijkstraResults = data.dijkstra_results;
+
+                row1A1.textContent = dijkstraResults[0]?.book_name || '';
+                row2A1.textContent = dijkstraResults[1]?.book_name || '';
+                row3A1.textContent = dijkstraResults[2]?.book_name || '';
+                row4A1.textContent = dijkstraResults[3]?.book_name || '';
+                row5A1.textContent = dijkstraResults[4]?.book_name || '';
+
+
+                var bookNames = data.book_names;
+                row1.textContent = bookNames[0] || '';
+                row2.textContent = bookNames[1] || '';
+                row3.textContent = bookNames[2] || '';
+                row4.textContent = bookNames[3] || '';
+                row5.textContent = bookNames[4] || '';
+
+                tablesContainer.style.display = 'block';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
