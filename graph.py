@@ -193,7 +193,7 @@ class Graph:
 
 
 
-    def random_walk(self, source, steps = 100, alpha = 0.15): #algorithm 2
+    def random_walk(self, source, steps = 100, alpha = 0.0): #algorithm 2
         """
 
         This method uses a more probabilistic approach for the reccomendation.
@@ -232,8 +232,9 @@ class Graph:
                 probability = weight / weights_sum # turn into a probability distribution function
                 probabilities.append(probability)
 
-            for nbr, prob in zip(neighbors, probabilities):
-                print("Neighbor: ", self.get_name(nbr), "Probability: ", prob)
+            # for nbr, prob in zip(neighbors, probabilities):
+            #     print("Neighbor: ", self.get_name(nbr), "Probability: ", prob)
+            # print(sum(probabilities), "Does this equal 1???")
 
             #print(f"Source: {source}, Neighbors: {neighbors}, Probabilities: {probabilities}")
             if random.random() < alpha and current != source:
