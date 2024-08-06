@@ -6,23 +6,28 @@ from collections import defaultdict, deque
 import math
 import random
 import heapq
+import requests
 
 import logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 
 class Graph:
     def __init__(self):
-        data = pd.read_csv("ratings.csv")
-        books = pd.read_csv("books.csv")
-        self.user_ids = list(data["user_id"])
-        self.book_ids = list(data["book_id"])
+        self.data = pd.read_csv("ratings.csv")
+        self.books = pd.read_csv("books.csv")
+        self.user_ids = list(self.data["user_id"])
+        self.book_ids = list(self.data["book_id"])
         self.book_ids_inorder = list(range(1, 10001))
-        self.reviews = list(data["rating"])
-        self.book_names = list(books["original_title"])
+        self.reviews = list(self.data["rating"])
+        self.titles = list(self.books["title"])
+        self.book_names = list(self.books["original_title"])
+        for i in range(len(self.book_names)):
+            if(pd.isna(self.book_names[i])):
+                self.book_names[i] = self.titles[i]
 
-        self.book_ids_to_names = {}
+        self.book_ids_to_names = {} ##REMOVE THIS LATER
         self.authors = list()
         for i in range(1,10001):
             self.book_ids_to_names[i] = self.book_names[i-1]
@@ -34,12 +39,26 @@ class Graph:
         return self.book_names[book_id - 1]  # has to do id - 1 to get rid of extra line
 
     def get_id(self, name):
+        #converts input to lowecase for case sensitivity
         name = name.lower()
-        book_names_lower = []
-        for i in range(len(self.book_names)):
-            book_names_lower = self.book_names[i].lower()
+        #converts all books in list to lowercase
+        book_names_lower = [book_name.lower() for book_name in self.book_names]
+
+        #finds the index of the inputed names in the lowercase book names
         index = book_names_lower.index(name)
         return index + 1
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -67,12 +86,20 @@ class Graph:
                 for j in range(i + 1, len(books)):
                     weights[(books[i], books[j])] += 1 # adds 1 to weight between books if user rates both books highly
 
-        for (book1, book2), weight in weights.items():  # gets the key value pair
-            popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(
-                num_reviews[book2]))  # used for balancing out overly popular books.
-            self.graph.add_edge(book1, book2, weight= popularity / weight)  # adds edge on the graph. This is inversely related to the number of people who rated both books highly
-        return self.graph
+        edges = defaultdict(list)
+        for (book1, book2), weight in weights.items():
+            popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(num_reviews[book2]))
+            weight = popularity / weight
+            edges[book1].append((book2, weight))
+            edges[book2].append((book1, weight))
 
+        for book in edges:  # now we get the top n
+            if len(edges[book]) > 32:
+                edges[book] = sorted(edges[book], key=lambda x: x[1], reverse=False)[:32]
+
+        for book in edges:
+            for neighbor, wght in edges[book]:
+                self.graph.add_edge(book, neighbor, weight=wght)
 
 
     def construct_simple_2(self):
@@ -104,18 +131,18 @@ class Graph:
         edges = defaultdict(list)#taking top n edges by weight. Reduces randomness in random walk function and increases computation speed
         for(book1, book2), weight in weights.items(): # gets the key value pair
             popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(num_reviews[book2]))# used for balancing out overly popular books.
-            weight = weight / popularity if popularity != 0 else 0
+            weight = popularity / weight if popularity != 0 else 0
             edges[book1].append((book2, weight))
             edges[book2].append((book1, weight))
 
         for book in edges: ##now we get the top n
             if len(edges[book]) >= 50:
-                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:50] ## gets the top 50 edges by weight. could tune around to find optimal value
+                top_edges = sorted(edges[book], key=lambda x: x[1], reverse=True)[:32] ## gets the top 50 edges by weight. could tune around to find optimal value
                 for neighbor, wght in top_edges:
-                    self.graph.add_edge(book, neighbor, weight=wght)
+                    self.graph.add_edge(book, neighbor, weight=((wght* (10**5))**3))
             else:
                 for neighbor, wght in edges[book]:
-                    self.graph.add_edge(book, neighbor, weight=wght)
+                    self.graph.add_edge(book, neighbor, weight=((wght*(10**5))**3))
 
         return self.graph
 
@@ -129,41 +156,32 @@ class Graph:
             self.graph = pickle.load(file)
         logging.debug("Pickle File Successfully loaded")
 
-    def dijkstra_test(self, source):
-        """
-        Find the num_closest closest nodes to the given book_id using Dijkstra's algorithm.
-        """
-        if self.graph is None:
-            self.construct_simple_1()
-
-        # Compute the shortest paths from the given book_id to all other nodes
-        lengths = nx.single_source_dijkstra_path_length(self.graph, source)
-
-        # Get the closest nodes with the smallest distances
-        results = sorted([(book, dist) for book, dist in lengths.items() if book != source], key=lambda x: x[1])[:5]
-
-        return results
-
 
     def dijkstras_algorithm(self, source): # algorithm 1
         """
         :param source: the source vertex (book)
         :return: returns the 5 nodes that have the smallest path to the source
         """
-        # create graph
-        if self.graph is None:
-            self.construct_simple_1()
 
+        #loads in the graph
+        self.load_graph("graphstpath.pkl")
+
+        #if sourse not in node of graph
         if source not in self.graph:
             return None, float('infinity')
 
+        #sets source node to 0 and sers all nodes set to inifinty
         distances = {node: float('infinity') for node in self.graph.nodes()}
         distances[source] = 0
+        # priority queue
         heap = [(0, source)]
 
+
         while heap:
+            #pops nodes with shortest distance from heap
             current_distance, current_book = heapq.heappop(heap)
 
+            # skips this node if distance is greater than current
             if current_distance > distances[current_book]:
                 continue
 
@@ -172,18 +190,11 @@ class Graph:
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
                     heapq.heappush(heap, (distance, neighbor))
-
+        #sorts all nodes by distance and getsd 5 smallest distances
         results = sorted([(book, dist) for book, dist in distances.items() if book != source], key=lambda x: x[1])[:5]
         return results
 
 
-
-    def search(self, source):
-        v = set()
-        q = deque([source])
-
-        while q:
-            current = q.popleft()
 
 
 
@@ -220,7 +231,11 @@ class Graph:
             for weight in weights:
                 probability = weight / weights_sum # turn into a probability distribution function
 
+
                 probabilities.append(probability)
+
+
+
             choice = random.choices(neighbors, probabilities, k=1)[0]
             if choice != source:
                 counts[choice] += 1
