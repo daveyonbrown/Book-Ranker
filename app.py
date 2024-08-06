@@ -6,6 +6,9 @@ from graph import Graph
 app = Flask(__name__)
 
 
+#instance of graph
+graph = Graph()
+
 
 
 @app.route('/') #sets up root to url
@@ -17,53 +20,40 @@ def index():  #handls request to root of url
 def search():
     try:
 
-        print("program start")
+
         #sorts the json data from the request
         data = request.get_json()
 
-        print("getting request")
-        #extracts book name from json data puts in lowercase to compare
-        book_name = data['book_name'].strip().lower()
+        #extracts book ID from json data and converts to integer
+        book_id = int(data['book_id'])
 
-        # #instance of graph
-        graph = Graph()
+        source = 500
+        # q = graph.random_walk_sim(book_id, num_walks=1000, steps=100)
+        #
+        # for a, b in q:
+        #     print("Book", graph.book_ids_to_names[a])
+        #     print("Count", b)
 
-        #gets book id from name and if DNE its an error
-        book_id = graph.get_id(book_name)
-        if book_id is None:
-            print("book err")
-            return jsonify(error="Book not found"), 400
+        # #gets the book name that is attached to book ID using graph
+        # book_name = graph.get_name(book_id)
 
-        print("Starting Dijkstra's algorithm")
+        print(book_id)
 
-        #sets and empty list to store the alg results
-        dijkstra_results = []
-
-        #runs dijkstras to find shortest path
-        shortest_paths = graph.dijkstras_algorithm(book_id)
+        # #returns the book name in JSON text
+        # return jsonify(book_name=book_name)
 
 
-        #not used in flask but to print out the results in console
-        for book_id, distance in shortest_paths[:5]:
-            print(f"Book ID: {book_id}, Book Name: {graph.book_ids_to_names[book_id]}, Distance: {distance}")
-            dijkstra_results.append({'book_name': graph.get_name(book_id)})
 
-
-        print("Starting random walk")
-
-        #runs random walk simulation for book recommendations
+        # Get the random walk recommendations
         recommendations = graph.random_walk_sim(book_id, num_walks=1000, steps=100)
 
-        #stores the book names from random walk
+        # Get the book names for the recommendations
         book_names = [graph.get_name(rec[0]) for rec in recommendations]
 
-        # not used in flask but to print out the results in console
-        for a, b in recommendations:
-            print("Book", graph.book_ids_to_names[a])
+        return jsonify(book_names=book_names)
 
-        #returns thw names and pushes them as a json response in the html file
-        return jsonify(dijkstra_results=dijkstra_results, book_names=book_names)
 
+    #errror if runs into any 400 status codes
     except Exception as e:
         return jsonify(error=str(e)), 400
 

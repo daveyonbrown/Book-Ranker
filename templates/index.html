@@ -110,10 +110,10 @@
     <div class="tables-container" id="tablesContainer">
         <div class="table-wrapper">
             <div class="table-container">
-                <div class="tables-header">Dijkstra's Algorithm</div>
+                <div class="tables-header">Searching Algorithm 1</div>
                 <table>
                     <tr>
-                        <th> </th>
+                        <th>Column 1</th>
                     </tr>
                     <tr>
                         <td id="1Row1"> </td>
@@ -134,10 +134,10 @@
                 <div class="time-header"> Search Time: 0.00</div>
             </div>
             <div class="table-container">
-                <div class="tables-header"> Random Walk Algorithm </div>
+                <div class="tables-header">Searching Algorithm 2</div>
                 <table>
                     <tr>
-                        <th> </th>
+                        <th>Column 2</th>
                     </tr>
                    <tr>
                         <td id="Row1"> </td>
@@ -165,11 +165,6 @@
            var query = document.getElementById('searchBox').value; //gets the value from the search input of box
             var resultDiv = document.getElementById('result'); //references the results
             var tablesContainer = document.getElementById('tablesContainer');// references the table container
-            var row1A1 = document.getElementById('1Row1');
-            var row2A1 = document.getElementById('1Row2');
-            var row3A1 = document.getElementById('1Row3');
-            var row4A1 = document.getElementById('1Row4');
-            var row5A1 = document.getElementById('1Row5');
             var row1 = document.getElementById('Row1'); // gets refernce to the first row of the table and shows book name
             var row2 = document.getElementById('Row2');
             var row3 = document.getElementById('Row3');
@@ -184,12 +179,10 @@
                 headers: {
                     'Content-Type': 'application/json', // puts the request header to show Json loading
                 },
-                body: JSON.stringify({ book_name: query }), // converts the book ID to a JSon string and sends it to body
+                body: JSON.stringify({ book_id: query }), // converts the book ID to a JSon string and sends it to body
             })
             .then(response => {
                 if (!response.ok) { // checkds for any 404 or 500 errors
-                    resultDiv.innerHTML = 'Invalid Book name: ' + query ;
-                    resultDiv.innerHTML += `<br><b>Please enter a valid book title</b>`;
                     throw new Error('Netwok err ' + response.statusText);
                 }
                 // puts json string in body
@@ -198,18 +191,6 @@
             .then(data => {
                 // updates the result with search and thing searched for
                 resultDiv.textContent = 'You searched for: ' + query;
-
-                resultDiv.innerHTML += `<br><b>Others Also Liked These Books below</b>`;
-
-
-                 var dijkstraResults = data.dijkstra_results;
-
-                row1A1.textContent = dijkstraResults[0]?.book_name || '';
-                row2A1.textContent = dijkstraResults[1]?.book_name || '';
-                row3A1.textContent = dijkstraResults[2]?.book_name || '';
-                row4A1.textContent = dijkstraResults[3]?.book_name || '';
-                row5A1.textContent = dijkstraResults[4]?.book_name || '';
-
 
                 var bookNames = data.book_names;
                 row1.textContent = bookNames[0] || '';
