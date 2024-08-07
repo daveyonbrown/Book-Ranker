@@ -11,14 +11,15 @@ import requests
 
 def main():
 
+    #code to build the graphs
     g = Graph()
-    # g.construct_simple_1()
-    # g.save("graphstpath.pkl")
-    # g.construct_simple_2()
-    # g.save("graphrandomwalk.pkl")
+    g.construct_simple_1()
+    g.save("graphstpath.pkl")
+    g.construct_simple_2()
+    g.save("graphrandomwalk.pkl")
 
-    #
-    g.load_graph("graphrandomwalk.pkl")
+    #code to test graph functionality
+    #g.load_graph("graphrandomwalk.pkl")
     #
     # print("Testing get_id method with book names from book_ids:")
     # for book_id in g.book_ids:
