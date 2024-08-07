@@ -45,50 +45,44 @@ class Graph:
         index = book_names_lower.index(name)
         return index + 1
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def construct_simple_1(self):
         """
         this will be used for the shortest path algorithm.
         The weights are smaller for books where a large number of people rated both highly
         :return:
         """
-        self.graph = nx.Graph() ##graph instance object
-        nodes = set(self.book_ids) # each book is a node
+        self.graph = nx.Graph()  ##graph instance object
+        nodes = set(self.book_ids)  # each book is a node
         self.graph.add_nodes_from(nodes)
 
-        weights = defaultdict(int) # tuple to int. book1 <---> book2: weight
-        user_books = defaultdict(list) # user : books they rated 5 stars
-        num_reviews = defaultdict(int) # determines popularity of book. Used for balancing of weights.
+        weights = defaultdict(int)  # tuple to int. book1 <---> book2: weight
+        user_books = defaultdict(list)  # user : books they rated 5 stars
+        num_reviews = defaultdict(int)  # determines popularity of book. Used for balancing of weights.
 
         for i in range(len(self.reviews)):
             if self.reviews[i] == 5:
-                user_books[self.user_ids[i]].append(self.book_ids[i]) #maps user id to the books they reviewed 5 stars
-                num_reviews[self.book_ids[i]] += 1 # the popularity of each book, number of high reviews
+                user_books[self.user_ids[i]].append(self.book_ids[i])  # maps user id to the books they reviewed 5 stars
+                num_reviews[self.book_ids[i]] += 1  # the popularity of each book, number of high reviews
 
         for books in user_books.values():
             for i in range(len(books)):
                 for j in range(i + 1, len(books)):
-                    weights[(books[i], books[j])] += 1 # adds 1 to weight between books if user rates both books highly
+                    weights[(books[i], books[j])] += 1  # adds 1 to weight between books if user rates both books highly
 
-        for (book1, book2), weight in weights.items():  # gets the key value pair
-            popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(
-                num_reviews[book2]))  # used for balancing out overly popular books.
-            self.graph.add_edge(book1, book2, weight= popularity / weight)  # adds edge on the graph. This is inversely related to the number of people who rated both books highly
-        return self.graph
+        edges = defaultdict(list)
+        for (book1, book2), weight in weights.items():
+            popularity = math.exp(math.log1p(num_reviews[book1]) + math.log1p(num_reviews[book2]))
+            weight = popularity / weight
+            edges[book1].append((book2, weight))
+            edges[book2].append((book1, weight))
 
+        for book in edges:  # now we get the top n
+            if len(edges[book]) > 32:
+                edges[book] = sorted(edges[book], key=lambda x: x[1], reverse=False)[:32]
+
+        for book in edges:
+            for neighbor, wght in edges[book]:
+                self.graph.add_edge(book, neighbor, weight=wght)
 
     def construct_simple_2(self):
         """
@@ -255,7 +249,7 @@ class Graph:
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
         print("Working?")
-        self.load_graph("graphrandomwalk.pkl")
+        self.load_graph("a.pkl")
         counts = defaultdict(int)
         for i in range(num_walks):
             rw = self.random_walk(source, steps)
