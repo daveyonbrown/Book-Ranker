@@ -248,8 +248,8 @@ class Graph:
         :param steps: used in the random walk function
         :return: a mapping to nodes and how many times the random walk function landed on them. The top 5 will be taken as reccomendation
         """
-        print("Working?")
-        self.load_graph("a.pkl")
+        #print("Working?")
+        self.load_graph("graphrandomwalk.pkl")
         counts = defaultdict(int)
         for i in range(num_walks):
             rw = self.random_walk(source, steps)
