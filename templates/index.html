@@ -131,7 +131,7 @@
                         <td id="1Row5"> </td>
                     </tr>
                 </table>
-                <div class="time-header"> Search Time: 0.00</div>
+                <div class="time-header" id="dijkstraTime"> Search Time: 0.00 </div>
             </div>
             <div class="table-container">
                 <div class="tables-header"> Random Walk Algorithm </div>
@@ -155,7 +155,7 @@
                         <td id="Row5"> </td>
                     </tr>
                 </table>
-                 <div class="time-header"> Search Time: 0.00</div>
+                 <div class="time-header" id="randomWalkTime"> Search Time: 0.00</div>
             </div>
         </div>
     </div>
@@ -175,6 +175,9 @@
             var row3 = document.getElementById('Row3');
             var row4 = document.getElementById('Row4');
             var row5 = document.getElementById('Row5');
+            var dijkstraTime = document.getElementById('dijkstraTime');
+            var randomWalkTime = document.getElementById('randomWalkTime');
+
 
 
             //sends a POST request to the /search endpoint
@@ -217,6 +220,8 @@
                 row3.textContent = bookNames[2] || '';
                 row4.textContent = bookNames[3] || '';
                 row5.textContent = bookNames[4] || '';
+                dijkstraTime.textContent = `Search Time: ${data.time_dijkstra}`;
+                randomWalkTime.textContent = `Search Time: ${data.time_randomwalk}`;
 
                 tablesContainer.style.display = 'block';
             })
